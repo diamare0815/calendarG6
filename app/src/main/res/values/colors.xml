@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors -->
+    <color name="pink_primary">#FF69B4</color>
+    <color name="pink_light">#FFB6C1</color>
+    <color name="pink_lighter">#FFC0CB</color>
+    <color name="pink_background">#FFF5F9</color>
+
+    <!-- Accent Colors -->
+    <color name="purple_light">#E0BBE4</color>
+    <color name="blue_light">#B0E0E6</color>
+    <color name="green_light">#98D8C8</color>
+    <color name="yellow_light">#FFE4B5</color>
+    <color name="peach_light">#F0E68C</color>
+
+    <!-- System Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="text_primary">#333333</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_hint">#999999</color>
+
+    <!-- Status Colors -->
+    <color name="success">#32CD32</color>
+    <color name="error">#FF6B6B</color>
+    <color name="warning">#FFA500</color>
+    <color name="info">#4A90E2</color>
+</resources>

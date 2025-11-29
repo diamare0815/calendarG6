@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:background="#FFFFFF">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New Task"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FF69B4"
+            android:layout_marginBottom="20dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Task Title"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_todo_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Category"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <Spinner
+            android:id="@+id/spinner_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/spinner_bg"
+            android:padding="12dp" />
+
+        <CheckBox
+            android:id="@+id/cb_important"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mark as Important"
+            android:textColor="#333333"
+            android:buttonTint="#FF69B4"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Color"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <View
+                android:id="@+id/color_pink"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/color_circle"
+                android:backgroundTint="#FFB6C1"
+                android:layout_margin="8dp" />
+
+            <View
+                android:id="@+id/color_peach"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/color_circle"
+                android:backgroundTint="#FFE4B5"
+                android:layout_margin="8dp" />
+
+            <View
+                android:id="@+id/color_purple"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/color_circle"
+                android:backgroundTint="#E0BBE4"
+                android:layout_margin="8dp" />
+
+            <View
+                android:id="@+id/color_blue"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/color_circle"
+                android:backgroundTint="#B0E0E6"
+                android:layout_margin="8dp" />
+
+            <View
+                android:id="@+id/color_green"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/color_circle"
+                android:backgroundTint="#98D8C8"
+                android:layout_margin="8dp" />
+
+            <View
+                android:id="@+id/color_yellow"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/color_circle"
+                android:backgroundTint="#F0E68C"
+                android:layout_margin="8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp">
+
+            <Button
+                android:id="@+id/btn_cancel_todo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textColor="#666666"
+                android:backgroundTint="#F0F0F0"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btn_save_todo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Save"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#FF69B4"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

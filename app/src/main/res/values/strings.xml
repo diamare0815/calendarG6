@@ -1,0 +1,71 @@
+<resources>
+    <string name="app_name">Cute Calendar</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_todo">To-Do</string>
+    <string name="nav_notes">Notes</string>
+    <string name="nav_diary">Diary</string>
+    <string name="nav_habit">Habits</string>
+
+    <!-- Calendar -->
+    <string name="calendar_title">Calendar</string>
+    <string name="day_view">Day</string>
+    <string name="week_view">Week</string>
+    <string name="month_view">Month</string>
+    <string name="add_event">Add Event</string>
+
+    <!-- Todo -->
+    <string name="todo_title">To-Do List</string>
+    <string name="pending">Pending</string>
+    <string name="completed">Completed</string>
+    <string name="add_todo">Add Task</string>
+    <string name="filter_all">All</string>
+    <string name="filter_today">Today</string>
+    <string name="filter_week">This Week</string>
+    <string name="filter_important">Important</string>
+
+    <!-- Notes -->
+    <string name="notes_title">Notes</string>
+    <string name="add_note">Add Note</string>
+
+    <!-- Diary -->
+    <string name="diary_title">Diary</string>
+    <string name="add_diary">Write Diary</string>
+
+    <!-- Habit -->
+    <string name="habit_title">Habit Tracker</string>
+    <string name="add_habit">Add Habit</string>
+    <string name="current_streak">Current Streak</string>
+    <string name="goal">Goal</string>
+
+    <!-- Dialog -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="category">Category</string>
+    <string name="time">Time</string>
+    <string name="date">Date</string>
+    <string name="color">Color</string>
+    <string name="important">Important</string>
+    <string name="choose_color">Choose Color</string>
+
+    <!-- Categories -->
+    <string name="category_personal">Personal</string>
+    <string name="category_work">Work</string>
+    <string name="category_health">Health</string>
+    <string name="category_shopping">Shopping</string>
+    <string name="category_study">Study</string>
+    <string name="category_other">Other</string>
+
+    <!-- Moods -->
+    <string name="mood_happy">Happy</string>
+    <string name="mood_sad">Sad</string>
+    <string name="mood_excited">Excited</string>
+    <string name="mood_calm">Calm</string>
+    <string name="mood_neutral">Neutral</string>
+    <string name="mood_angry">Angry</string>
+</resources>
