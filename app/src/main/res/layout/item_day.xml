@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llDayItem"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="4dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- Ngày -->
+    <TextView
+        android:id="@+id/tvDay"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:background="@drawable/bg_day_normal"
+        android:padding="8dp" />
+
+    <!-- Các sự kiện (tích hợp item_day_hour) -->
+    <LinearLayout
+        android:id="@+id/llEvents"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="4dp">
+        <!-- Event sẽ được thêm bằng code -->
+    </LinearLayout>
+</LinearLayout>

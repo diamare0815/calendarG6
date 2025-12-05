@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llDayItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:gravity="center"
+    android:background="#FFFFFF">
+
+    <!-- Month -->
+    <TextView
+        android:id="@+id/tv_month"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tháng"
+        android:textSize="15sp"
+        android:textColor="#666"
+        android:layout_gravity="center" />
+
+    <!-- Day navigation -->
+    <LinearLayout
+        android:id="@+id/ll_day_nav"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="4dp">
+
+        <ImageButton
+            android:id="@+id/btn_prev_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_left"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Previous Day"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginHorizontal="16dp">
+
+            <FrameLayout
+                android:layout_width="60dp"
+                android:layout_height="60dp">
+
+                <!-- Số ngày -->
+                <TextView
+                    android:id="@+id/tv_day_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="7"
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
+
+                <!-- Ngôi sao góc trên phải -->
+                <ImageView
+                    android:id="@+id/v_event_dot"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_gravity="top|end"
+                    android:src="@drawable/ic_star"
+                    android:visibility="gone"
+                    android:contentDescription="Event Star"/>
+            </FrameLayout>
+        </LinearLayout>
+
+
+        <ImageButton
+            android:id="@+id/btn_next_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_right"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Next Day"/>
+    </LinearLayout>
+
+    <!-- Weekday -->
+    <TextView
+        android:id="@+id/tv_weekday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thứ 5"
+        android:textSize="18sp"
+        android:layout_gravity="center"
+        android:textColor="#666"
+        android:layout_marginTop="4dp"/>
+
+    <!-- RecyclerView events -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_events"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_marginTop="8dp"
+        android:nestedScrollingEnabled="false"/>
+</LinearLayout>

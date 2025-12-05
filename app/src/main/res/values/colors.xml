@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="teal_text">#0D7377</color>
+    <color name="gray_text">#9CA3AF</color>
+
+
     <!-- Primary Colors -->
     <color name="pink_primary">#FF69B4</color>
     <color name="pink_light">#FFB6C1</color>
