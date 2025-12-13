@@ -1,6 +1,6 @@
 package com.calendar.cute.adapters;
 
-import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +22,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayVH> {
 
     public interface OnDayChangeListener {
@@ -33,7 +36,6 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayVH> {
         void onDelete(Event event, int position);
     }
 
-    private Context context;
     private List<Event> events;
     private String currentDate;
     private OnDayChangeListener dayChangeListener;
@@ -41,10 +43,13 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayVH> {
 
     private final SimpleDateFormat fullFormat = new SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault());
 
+    // Parsers: giống WeekAdapter (display format + ISO)
+    private DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy", Locale.getDefault());
+    private DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+
     private EventAdapter eventAdapter; // giữ 1 adapter duy nhất
 
-    public DayAdapter(Context context, OnDayChangeListener listener) {
-        this.context = context;
+    public DayAdapter(android.content.Context context, OnDayChangeListener listener) {
         this.dayChangeListener = listener;
         this.events = new ArrayList<>();
         this.currentDate = fullFormat.format(new Date());
@@ -71,6 +76,7 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayVH> {
     @NonNull
     @Override
     public DayVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        android.content.Context context = parent.getContext();
         View v = LayoutInflater.from(context).inflate(R.layout.item_day_cell, parent, false);
         DayVH vh = new DayVH(v);
         vh.rvEvents.setLayoutManager(new LinearLayoutManager(context));
@@ -87,15 +93,51 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayVH> {
         holder.tvWeekday.setText(new SimpleDateFormat("EEEE", Locale.getDefault()).format(dateObj));
         holder.tvMonth.setText(new SimpleDateFormat("MMMM", Locale.getDefault()).format(dateObj));
 
-        // Hiển thị ngôi sao nếu có sự kiện
+        // Tính isToday (so sánh LocalDate)
+        LocalDate displayed = LocalDate.of(dateObj.getYear() + 1900, dateObj.getMonth() + 1, dateObj.getDate());
+        LocalDate today = LocalDate.now();
+        boolean isToday = displayed.equals(today);
+
+        // Kiểm tra sự kiện: nếu ngày có sự kiện thì hiển thị dot
         boolean hasEvent = false;
         for (Event e : events) {
-            if (e.getDate() != null && e.getDate().equals(fullFormat.format(dateObj))) {
-                hasEvent = true;
-                break;
+            if (e == null || e.getDate() == null) continue;
+            String edt = e.getDate();
+            try {
+                // Thử parse theo display format (ví dụ "Monday, January 01, 2025")
+                LocalDate eventDate = LocalDate.parse(edt, displayFormatter);
+                if (eventDate.equals(displayed)) {
+                    hasEvent = true;
+                    break;
+                }
+            } catch (Exception ex1) {
+                try {
+                    // Fallback sang ISO (yyyy-MM-dd)
+                    LocalDate eventDate2 = LocalDate.parse(edt, isoFormatter);
+                    if (eventDate2.equals(displayed)) {
+                        hasEvent = true;
+                        break;
+                    }
+                } catch (Exception ex2) {
+                    // ignore bad format
+                }
             }
         }
         holder.vEventDot.setVisibility(hasEvent ? View.VISIBLE : View.GONE);
+
+        // Reset style mặc định
+        holder.tvDayNumber.setBackgroundResource(R.drawable.bg_day_normal);
+        holder.tvDayNumber.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.black));
+        holder.tvWeekday.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.black));
+        holder.tvDayNumber.setTypeface(null, Typeface.NORMAL);
+
+        // Nếu là ngày hôm nay -> làm mờ/nhạt (giống WeekAdapter)
+        if (isToday) {
+            holder.tvDayNumber.setBackgroundResource(R.drawable.bg_today_fade);
+            holder.tvDayNumber.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.darker_gray));
+            holder.tvWeekday.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.darker_gray));
+            holder.tvDayNumber.setTypeface(null, Typeface.NORMAL);
+        }
 
         // prev/next day
         holder.btnPrev.setOnClickListener(v -> shiftDay(-1));

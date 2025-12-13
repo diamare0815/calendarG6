@@ -26,7 +26,10 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekAdapter.DayViewHolder>
     private List<Event> events = new ArrayList<>();
     private OnDayClickListener listener;
     private int selectedIndex = -1;
+
     private DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("d", Locale.getDefault());
+    private DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy", Locale.getDefault());
+    private DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
     public interface OnDayClickListener {
         void onDayClick(LocalDate date);
@@ -46,38 +49,50 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekAdapter.DayViewHolder>
     @Override
     public void onBindViewHolder(final DayViewHolder holder, final int position) {
         final LocalDate date = days.get(position);
+        LocalDate today = LocalDate.now();
+        boolean isToday = date.equals(today);
 
-        // Hiển thị tên ngày trong tuần (Th 2, Th 3…)
-        String dow = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault());
-        holder.tvWeekday.setText(dow);
-
-        // Hiển thị số ngày
+        // Hiển thị tên ngày trong tuần (Mon, Tue…)
+        holder.tvWeekday.setText(date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault()));
         holder.tvDayNumber.setText(date.format(dayFormatter));
 
-        // Kiểm tra sự kiện: nếu ngày có sự kiện thì hiển thị ngôi sao
+        // Check sự kiện: hiển thị sao nếu có event
         boolean hasEvent = false;
         for (Event e : events) {
+            if (e == null || e.getDate() == null) continue;
+            String edt = e.getDate();
+            LocalDate eventDate = null;
             try {
-                // Chuyển Event.getDate() (chuỗi) sang LocalDate
-                LocalDate eventDate = LocalDate.parse(e.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                if (eventDate.equals(date)) {
-                    hasEvent = true;
-                    break;
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
+                eventDate = LocalDate.parse(edt, displayFormatter);
+            } catch (Exception ex1) {
+                try {
+                    eventDate = LocalDate.parse(edt, isoFormatter);
+                } catch (Exception ignored) {}
+            }
+            if (eventDate != null && eventDate.equals(date)) {
+                hasEvent = true;
+                break;
             }
         }
         holder.vEventStar.setVisibility(hasEvent ? View.VISIBLE : View.GONE);
 
-        // Hiển thị selection
+        // Reset style mặc định
+        holder.tvDayNumber.setBackgroundResource(R.drawable.bg_day_normal);
+        holder.tvDayNumber.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.black));
+        holder.tvWeekday.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.black));
+        holder.tvDayNumber.setTypeface(null, Typeface.NORMAL);
+
+        // Highlight ngày chọn
         if (position == selectedIndex) {
             holder.tvDayNumber.setBackgroundResource(R.drawable.bg_day_selected);
             holder.tvDayNumber.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.white));
+            holder.tvWeekday.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.white));
             holder.tvDayNumber.setTypeface(null, Typeface.BOLD);
-        } else {
-            holder.tvDayNumber.setBackgroundResource(R.drawable.bg_day_normal);
-            holder.tvDayNumber.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.black));
+        } else if (isToday) {
+            // Highlight ngày hôm nay (nếu chưa chọn)
+            holder.tvDayNumber.setBackgroundResource(R.drawable.bg_today_fade);
+            holder.tvDayNumber.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.darker_gray));
+            holder.tvWeekday.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.darker_gray));
             holder.tvDayNumber.setTypeface(null, Typeface.NORMAL);
         }
 
@@ -93,7 +108,7 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekAdapter.DayViewHolder>
 
     @Override
     public int getItemCount() {
-        return days.size();
+        return days != null ? days.size() : 0;
     }
 
     // Cập nhật danh sách ngày
@@ -105,6 +120,7 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekAdapter.DayViewHolder>
 
     // Chọn ngày cụ thể
     public void selectDate(LocalDate date) {
+        if (date == null || days == null) return;
         int idx = days.indexOf(date);
         if (idx >= 0) {
             int prev = selectedIndex;
@@ -115,12 +131,11 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekAdapter.DayViewHolder>
     }
 
     // Cập nhật danh sách sự kiện
-    public void updateEvents(List<Event> events) {
+    public void setEvents(List<Event> events) {
         this.events = events != null ? events : new ArrayList<>();
         notifyDataSetChanged();
     }
 
-    // ViewHolder
     static class DayViewHolder extends RecyclerView.ViewHolder {
         TextView tvWeekday;
         TextView tvDayNumber;
@@ -130,7 +145,7 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekAdapter.DayViewHolder>
             super(itemView);
             tvWeekday = itemView.findViewById(R.id.tv_weekday_name);
             tvDayNumber = itemView.findViewById(R.id.tv_day_number);
-            vEventStar = itemView.findViewById(R.id.v_event_star); // star góc trên bên phải
+            vEventStar = itemView.findViewById(R.id.v_event_star);
         }
     }
 }

@@ -49,7 +49,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = eventList.get(position);
         holder.tvTitle.setText(event.getTitle());
-        holder.tvTime.setText(event.getTime());
+        // Hiển thị cả start và end time
+        holder.tvTime.setText(event.getTimeStart() + " - " + event.getTimeEnd());
 
         try {
             holder.cardView.setCardBackgroundColor(Color.parseColor(event.getColor()));
@@ -57,7 +58,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             holder.cardView.setCardBackgroundColor(Color.parseColor("#FFB6C1"));
         }
 
-        // Nhấn đúp để hiện menu sửa/xóa
+        // Nhấn đúp để edit
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             private long lastClickTime = 0;
 
@@ -81,6 +82,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             return true;
         });
     }
+
 
     private void showEventMenu(View anchor, Event event, int position) {
         if (actionListener == null || anchor == null) return;
