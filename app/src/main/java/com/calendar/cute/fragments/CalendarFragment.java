@@ -1,5 +1,9 @@
 package com.calendar.cute.fragments;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,9 +12,12 @@ import android.widget.CalendarView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Button;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,8 +59,12 @@ public class CalendarFragment extends Fragment {
 
     private List<LocalDate> weekDays;
 
+    // Keep a consistent date format for display (you may consider storing ISO "yyyy-MM-dd" internally later)
     private final SimpleDateFormat fullFormat = new SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.getDefault());
     private final DateTimeFormatter weekFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy", Locale.getDefault());
+
+    // Permission request code for notifications (if needed)
+    private static final int REQ_POST_NOTIFICATIONS = 101;
 
     @Nullable
     @Override
@@ -88,13 +99,16 @@ public class CalendarFragment extends Fragment {
         eventList = new ArrayList<>();
         weekDays = new ArrayList<>();
 
+        // Initialize selectedDate as today (formatted)
         selectedDate = fullFormat.format(new Date());
         tvSelectedDate.setText(selectedDate);
     }
 
     private void setupCalendar() {
-        // Khi người dùng chọn ngày trên CalendarView
+        if (calendarView == null) return;
+
         calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+            // CalendarView month is 0-based (January = 0)
             Calendar cal = Calendar.getInstance();
             cal.set(year, month, dayOfMonth);
             selectedDate = fullFormat.format(cal.getTime());
@@ -102,12 +116,10 @@ public class CalendarFragment extends Fragment {
 
             loadEventsForDate(selectedDate);
 
-            // Nếu đang ở chế độ Week view, cập nhật tuần
             if (llWeekNav.getVisibility() == View.VISIBLE && weekAdapter != null) {
                 updateWeekForCenterDate(cal);
             }
 
-            // Nếu đang ở Day view, cập nhật DayAdapter
             if (rvDay.getVisibility() == View.VISIBLE && dayAdapter != null) {
                 dayAdapter.updateDate(selectedDate);
             }
@@ -115,36 +127,49 @@ public class CalendarFragment extends Fragment {
     }
 
     private void setupRecyclerViews() {
-        // Events RecyclerView
-        eventAdapter = new EventAdapter(new ArrayList<>(), getContext());
-        recyclerEvents.setLayoutManager(new LinearLayoutManager(getContext()));
+        // Use requireContext() to avoid null context
+        eventAdapter = new EventAdapter(new ArrayList<>(), requireContext());
+        recyclerEvents.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerEvents.setAdapter(eventAdapter);
 
+        // Handle edit/delete via adapter callbacks
         eventAdapter.setOnEventActionListener(new EventAdapter.OnEventActionListener() {
             @Override
             public void onEdit(Event event, int position) {
-                AddEventDialog dialog = new AddEventDialog(getContext(), event, updatedEvent -> {
-                    eventList.set(position, updatedEvent);
+                // Use requireContext() to create dialog
+                AddEventDialog dialog = new AddEventDialog(requireContext(), event, updatedEvent -> {
+                    // replace event at the same position
+                    if (position >= 0 && position < eventList.size()) {
+                        eventList.set(position, updatedEvent);
+                    }
                     loadEventsForDate(selectedDate);
+                    refreshWeekView();
                 });
                 dialog.show();
             }
 
             @Override
             public void onDelete(Event event, int position) {
-                eventList.remove(position);
+                // Cancel any reminder if needed (if you implement cancel logic)
+                // remove from list and refresh
+                if (position >= 0 && position < eventList.size()) {
+                    eventList.remove(position);
+                } else {
+                    // fallback: try remove by object
+                    eventList.remove(event);
+                }
                 loadEventsForDate(selectedDate);
+                refreshWeekView();
             }
         });
 
-        // Day RecyclerView
-        dayAdapter = new DayAdapter(getContext(), new DayAdapter.OnDayChangeListener() {
+        // Day RecyclerView (vertical)
+        dayAdapter = new DayAdapter(requireContext(), new DayAdapter.OnDayChangeListener() {
             @Override
             public void onChangeDay(String newDate) {
                 selectedDate = newDate;
                 tvSelectedDate.setText(selectedDate);
                 loadEventsForDate(selectedDate);
-                // also center week on this date if week view visible
                 if (llWeekNav.getVisibility() == View.VISIBLE) {
                     try {
                         Calendar cal = Calendar.getInstance();
@@ -155,15 +180,16 @@ public class CalendarFragment extends Fragment {
                 }
             }
         });
-        rvDay.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        rvDay.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
         rvDay.setAdapter(dayAdapter);
 
+        // Load sample events and display
         loadSampleEvents();
         loadEventsForDate(selectedDate);
     }
 
     private void setupWeekRecyclerView() {
-        rvWeek.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        rvWeek.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         weekAdapter = new WeekAdapter(weekDays, date -> {
             selectedDate = date.format(weekFormatter);
             tvSelectedDate.setText(selectedDate);
@@ -190,10 +216,9 @@ public class CalendarFragment extends Fragment {
             else shiftWeekBy(1);
         });
 
-        // Mặc định hiển thị Month view theo ngày hiện tại
+        // Default to month view
         switchToMonthView();
     }
-
 
     private void loadEventsForDate(String date) {
         List<Event> filtered = new ArrayList<>();
@@ -208,28 +233,29 @@ public class CalendarFragment extends Fragment {
         String today = fullFormat.format(new Date());
         Calendar cal = Calendar.getInstance();
 
-        eventList.add(new Event("Team Meeting", "10:00 AM", today, "#FFB6C1"));
-        eventList.add(new Event("Lunch with Sarah", "12:30 PM", today, "#FFE4B5"));
-        eventList.add(new Event("Gym Session", "6:00 PM", today, "#E0BBE4"));
+        // Add sample events (use same date format as selectedDate)
+        eventList.add(new Event("Team Meeting", "10:00 AM", "11:00 AM", today, "#FFB6C1"));
+        eventList.add(new Event("Lunch with Sarah", "12:30 PM", "01:30 PM", today, "#FFE4B5"));
+        eventList.add(new Event("Gym Session", "06:00 PM", "07:00 PM", today, "#E0BBE4"));
 
         cal.add(Calendar.DAY_OF_MONTH, 1);
-        eventList.add(new Event("Project Review", "09:00 AM", fullFormat.format(cal.getTime()), "#C3FDB8"));
+        eventList.add(new Event("Project Review", "09:00 AM", "10:00 AM", fullFormat.format(cal.getTime()), "#C3FDB8"));
 
         cal.add(Calendar.DAY_OF_MONTH, -2);
-        eventList.add(new Event("Doctor Appointment", "3:00 PM", fullFormat.format(cal.getTime()), "#FFD1DC"));
+        eventList.add(new Event("Doctor Appointment", "03:00 PM", "04:00 PM", fullFormat.format(cal.getTime()), "#FFD1DC"));
 
         eventAdapter.notifyDataSetChanged();
     }
 
     private void showAddEventDialog() {
-        AddEventDialog dialog = new AddEventDialog(getContext(), selectedDate, event -> {
-            eventList.add(event);
+        AddEventDialog dialog = new AddEventDialog(requireContext(), selectedDate, event -> {
+            eventList.add(event); // event has timeStart + timeEnd
             loadEventsForDate(selectedDate);
+            refreshWeekView();
         });
         dialog.show();
     }
 
-    // -------------------- Switch Views --------------------
     private void switchToDayView() {
         btnDayView.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.pink_primary));
         btnWeekView.setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.white));
@@ -255,9 +281,11 @@ public class CalendarFragment extends Fragment {
         llWeekNav.setVisibility(View.VISIBLE);
 
         Calendar cal = Calendar.getInstance();
-        try { Date d = fullFormat.parse(selectedDate); if(d!=null) cal.setTime(d); } catch(Exception ignored){}
+        try {
+            Date d = fullFormat.parse(selectedDate);
+            if (d != null) cal.setTime(d);
+        } catch (Exception ignored) {}
         updateWeekForCenterDate(cal);
-        loadEventsForDate(selectedDate);
     }
 
     private void switchToMonthView() {
@@ -270,7 +298,6 @@ public class CalendarFragment extends Fragment {
         recyclerEvents.setVisibility(View.VISIBLE);
         llWeekNav.setVisibility(View.GONE);
 
-        // Optionally set calendarView date to selectedDate
         try {
             Date d = fullFormat.parse(selectedDate);
             if (d != null) calendarView.setDate(d.getTime(), false, true);
@@ -279,7 +306,6 @@ public class CalendarFragment extends Fragment {
         loadEventsForDate(selectedDate);
     }
 
-    // -------------------- Shift Day/Week --------------------
     private void shiftDayBy(int deltaDays) {
         Calendar cal = Calendar.getInstance();
         try { Date d = fullFormat.parse(selectedDate); if(d!=null) cal.setTime(d); } catch(Exception ignored){}
@@ -296,8 +322,6 @@ public class CalendarFragment extends Fragment {
         try { Date d = fullFormat.parse(selectedDate); if(d!=null) cal.setTime(d); } catch(Exception ignored){}
         cal.add(Calendar.WEEK_OF_YEAR, deltaWeeks);
         updateWeekForCenterDate(cal);
-
-        loadEventsForDate(selectedDate);
     }
 
     // -------------------- Week Helper --------------------
@@ -305,6 +329,7 @@ public class CalendarFragment extends Fragment {
         weekDays.clear();
         Calendar monday = (Calendar) centerCal.clone();
         int dow = monday.get(Calendar.DAY_OF_WEEK);
+        // calculate how many days to go back to reach Monday
         int daysBack = (dow == Calendar.SUNDAY) ? 6 : (dow - Calendar.MONDAY);
         monday.add(Calendar.DAY_OF_MONTH, -daysBack);
 
@@ -314,12 +339,75 @@ public class CalendarFragment extends Fragment {
             LocalDate ld = LocalDate.of(d.get(Calendar.YEAR), d.get(Calendar.MONTH)+1, d.get(Calendar.DAY_OF_MONTH));
             weekDays.add(ld);
         }
-        weekAdapter.updateDays(weekDays);
 
-        // Chọn ngày hiện tại
-        Calendar selCal = (Calendar) centerCal.clone();
-        LocalDate selDate = LocalDate.of(selCal.get(Calendar.YEAR), selCal.get(Calendar.MONTH)+1,
-                selCal.get(Calendar.DAY_OF_MONTH));
+        // Filter events in the week
+        List<Event> weekEvents = new ArrayList<>();
+        for (Event e : eventList) {
+            for (LocalDate ld : weekDays) {
+                String dayStr = ld.format(weekFormatter);
+                if (e.getDate() != null && e.getDate().equals(dayStr)) {
+                    weekEvents.add(e);
+                }
+            }
+        }
+
+        weekAdapter.updateDays(weekDays);
+        weekAdapter.setEvents(weekEvents);
+
+        LocalDate selDate = LocalDate.of(centerCal.get(Calendar.YEAR), centerCal.get(Calendar.MONTH)+1,
+                centerCal.get(Calendar.DAY_OF_MONTH));
         weekAdapter.selectDate(selDate);
+
+        selectedDate = selDate.format(weekFormatter);
+        tvSelectedDate.setText(selectedDate);
+
+        loadEventsForDate(selectedDate);
+    }
+
+    private void refreshWeekView() {
+        try {
+            Calendar cal = Calendar.getInstance();
+            Date d = fullFormat.parse(selectedDate);
+            if (d != null) cal.setTime(d);
+            updateWeekForCenterDate(cal);
+        } catch (Exception ignored) {}
+    }
+
+    // Helper to show a local notification (used for testing)
+    private void showEventNotification(String title, String time) {
+        Context context = requireContext();
+
+        // Create NotificationChannel (Android 8+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    "event_channel",
+                    "Event Reminder Channel",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("Channel for event reminders");
+            NotificationManager manager = context.getSystemService(NotificationManager.class);
+            if (manager != null) manager.createNotificationChannel(channel);
+        }
+
+        // Build notification
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "event_channel")
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle("Event Reminder")
+                .setContentText(title + " at " + time)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true);
+
+        // Check permission Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Request permission from fragment (Fragment.requestPermissions)
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, REQ_POST_NOTIFICATIONS);
+                return; // exit until permission granted
+            }
+        }
+
+        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(context);
+        managerCompat.notify((int) System.currentTimeMillis(), builder.build());
     }
 }
