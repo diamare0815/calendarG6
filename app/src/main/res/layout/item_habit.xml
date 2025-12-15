@@ -108,6 +108,7 @@
             android:gravity="center">
 
             <TextView
+                android:id="@+id/tv_mon"
                 android:layout_width="0dp"
                 android:layout_height="32dp"
                 android:layout_weight="1"
@@ -118,6 +119,7 @@
                 android:layout_margin="2dp" />
 
             <TextView
+                android:id="@+id/tv_tue"
                 android:layout_width="0dp"
                 android:layout_height="32dp"
                 android:layout_weight="1"
@@ -128,6 +130,7 @@
                 android:layout_margin="2dp" />
 
             <TextView
+                android:id="@+id/tv_wed"
                 android:layout_width="0dp"
                 android:layout_height="32dp"
                 android:layout_weight="1"
@@ -138,6 +141,7 @@
                 android:layout_margin="2dp" />
 
             <TextView
+                android:id="@+id/tv_thu"
                 android:layout_width="0dp"
                 android:layout_height="32dp"
                 android:layout_weight="1"
@@ -148,6 +152,7 @@
                 android:layout_margin="2dp" />
 
             <TextView
+                android:id="@+id/tv_fri"
                 android:layout_width="0dp"
                 android:layout_height="32dp"
                 android:layout_weight="1"
@@ -158,6 +163,7 @@
                 android:layout_margin="2dp" />
 
             <TextView
+                android:id="@+id/tv_sat"
                 android:layout_width="0dp"
                 android:layout_height="32dp"
                 android:layout_weight="1"
@@ -168,6 +174,7 @@
                 android:layout_margin="2dp" />
 
             <TextView
+                android:id="@+id/tv_sun"
                 android:layout_width="0dp"
                 android:layout_height="32dp"
                 android:layout_weight="1"

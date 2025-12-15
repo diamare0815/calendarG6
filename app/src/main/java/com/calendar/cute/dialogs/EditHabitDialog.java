@@ -1,26 +1,24 @@
 package com.calendar.cute.dialogs;
+
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.ArrayAdapter;
-import com.calendar.cute.R;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
-
+import com.calendar.cute.R;
 import com.calendar.cute.models.Habit;
 
 public class EditHabitDialog extends Dialog {
 
     private EditText etName, etGoal;
     private Button btnSave, btnCancel;
-    private Habit habit;
-    private OnHabitEditedListener listener;
+    private final Habit habit;
+    private final OnHabitEditedListener listener;
 
     public interface OnHabitEditedListener {
         void onHabitEdited(Habit habit);
@@ -38,6 +36,14 @@ public class EditHabitDialog extends Dialog {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_add_habit);
 
+        Window window = getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            int screenWidth = getContext().getResources().getDisplayMetrics().widthPixels;
+            int dialogWidth = (int) (screenWidth * 0.90);
+            window.setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
         initViews();
         populateData();
         setupListeners();
@@ -51,17 +57,20 @@ public class EditHabitDialog extends Dialog {
     }
 
     private void populateData() {
-        etName.setText(habit.getName());
-        etGoal.setText(String.valueOf(habit.getGoalDays()));
+        if (habit != null) {
+            etName.setText(habit.getName());
+            etGoal.setText(String.valueOf(habit.getGoalDays()));
+        }
     }
 
     private void setupListeners() {
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                habit.setName(etName.getText().toString().trim());
-                habit.setGoalDays(Integer.parseInt(etGoal.getText().toString().trim()));
+        btnSave.setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            String goalStr = etGoal.getText().toString().trim();
 
+            if (!name.isEmpty() && !goalStr.isEmpty()) {
+                habit.setName(name);
+                habit.setGoalDays(Integer.parseInt(goalStr));
                 listener.onHabitEdited(habit);
                 dismiss();
             }

@@ -13,11 +13,24 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Diary Entry"
+            android:text="New diary entry"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#FF69B4"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="10dp" />
+
+        <TextView
+            android:id="@+id/tv_date_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📅 Dec 06, 2025"
+            android:textSize="16sp"
+            android:textColor="#4A90E2"
+            android:textStyle="bold"
+            android:padding="8dp"
+            android:background="#F0F8FF"
+            android:layout_marginBottom="20dp"
+            android:drawablePadding="8dp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"

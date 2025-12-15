@@ -4,11 +4,12 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import com.calendar.cute.database.*;
+
 import com.calendar.cute.database.entities.DiaryEntity;
-import com.calendar.cute.repository.*;
+import com.calendar.cute.repository.DiaryRepository;
 import java.util.List;
-class DiaryViewModel extends AndroidViewModel {
+
+public class DiaryViewModel extends AndroidViewModel {
     private DiaryRepository repository;
     private LiveData<List<DiaryEntity>> allDiaries;
 
@@ -16,18 +17,6 @@ class DiaryViewModel extends AndroidViewModel {
         super(application);
         repository = new DiaryRepository(application);
         allDiaries = repository.getAllDiaries();
-    }
-
-    public LiveData<List<DiaryEntity>> getAllDiaries() {
-        return allDiaries;
-    }
-
-    public LiveData<List<DiaryEntity>> getDiariesByMood(String mood) {
-        return repository.getDiariesByMood(mood);
-    }
-
-    public LiveData<DiaryEntity> getDiaryByDate(String date) {
-        return repository.getDiaryByDate(date);
     }
 
     public void insert(DiaryEntity diary) {
@@ -40,5 +29,9 @@ class DiaryViewModel extends AndroidViewModel {
 
     public void delete(DiaryEntity diary) {
         repository.delete(diary);
+    }
+
+    public LiveData<List<DiaryEntity>> getAllDiaries() {
+        return allDiaries;
     }
 }

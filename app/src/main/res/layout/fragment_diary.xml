@@ -11,7 +11,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,7 +36,6 @@
                 android:textColor="#999999"
                 android:layout_marginTop="4dp" />
 
-            <!-- Mood Quick Stats -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -56,13 +54,21 @@
                     android:layout_marginEnd="4dp">
 
                     <TextView
+                        android:id="@+id/tv_dominant_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="😊"
                         android:textSize="24sp" />
 
                     <TextView
-                        android:id="@+id/tv_happy_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mood"
+                        android:textSize="12sp"
+                        android:textColor="#FF69B4"/>
+
+                    <TextView
+                        android:id="@+id/tv_dominant_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
@@ -83,13 +89,21 @@
                     android:layout_marginEnd="4dp">
 
                     <TextView
+                        android:id="@+id/tv_streak_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="😌"
+                        android:text="🔥"
                         android:textSize="24sp" />
 
                     <TextView
-                        android:id="@+id/tv_calm_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Streak"
+                        android:textSize="12sp"
+                        android:textColor="#4A90E2"/>
+
+                    <TextView
+                        android:id="@+id/tv_streak_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
@@ -115,6 +129,13 @@
                         android:textSize="24sp" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total"
+                        android:textSize="12sp"
+                        android:textColor="#32CD32"/>
+
+                    <TextView
                         android:id="@+id/tv_total_entries"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -126,7 +147,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Diary Entries List -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_diary"
             android:layout_width="match_parent"
@@ -136,7 +156,6 @@
 
     </LinearLayout>
 
-    <!-- FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_diary"
         android:layout_width="wrap_content"

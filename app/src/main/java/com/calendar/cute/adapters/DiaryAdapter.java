@@ -1,34 +1,36 @@
 package com.calendar.cute.adapters;
+
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.calendar.cute.models.DiaryEntry;
 import com.calendar.cute.R;
-
+import com.calendar.cute.database.entities.DiaryEntity;
 import java.util.List;
 
 public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHolder> {
 
-    private List<DiaryEntry> diaryList;
-    private Context context;
-    private OnDiaryItemListener listener;
+    private List<DiaryEntity> diaryList;
+    private final Context context;
+    private final OnDiaryItemListener listener;
 
     public interface OnDiaryItemListener {
-        void onDiaryClick(DiaryEntry entry);
-        void onDiaryDelete(DiaryEntry entry);
+        void onDiaryClick(DiaryEntity entry);
+        void onDiaryDelete(DiaryEntity entry);
     }
 
-    public DiaryAdapter(List<DiaryEntry> diaryList, Context context, OnDiaryItemListener listener) {
+    public DiaryAdapter(List<DiaryEntity> diaryList, Context context, OnDiaryItemListener listener) {
         this.diaryList = diaryList;
         this.context = context;
         this.listener = listener;
+    }
+
+    public void updateData(List<DiaryEntity> newList) {
+        this.diaryList = newList;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -40,30 +42,35 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
 
     @Override
     public void onBindViewHolder(@NonNull DiaryViewHolder holder, int position) {
-        DiaryEntry entry = diaryList.get(position);
+        DiaryEntity entry = diaryList.get(position);
 
         holder.tvTitle.setText(entry.getTitle());
         holder.tvContent.setText(entry.getContent());
         holder.tvDate.setText(entry.getDate());
+        holder.tvMoodIcon.setText(getMoodEmoji(entry.getMood()));
 
-        // Set mood emoji
-        String moodEmoji = getMoodEmoji(entry.getMood());
-        holder.tvMood.setText(moodEmoji);
-
-        holder.cardView.setOnClickListener(v -> listener.onDiaryClick(entry));
-        holder.cardView.setOnLongClickListener(v -> {
-            listener.onDiaryDelete(entry);
-            return true;
-        });
+        bindEvents(holder, entry);
     }
 
     @Override
     public int getItemCount() {
-        return diaryList.size();
+        return diaryList != null ? diaryList.size() : 0;
+    }
+
+    private void bindEvents(DiaryViewHolder holder, DiaryEntity entry) {
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onDiaryClick(entry);
+        });
+
+        holder.itemView.setOnLongClickListener(v -> {
+            if (listener != null) listener.onDiaryDelete(entry);
+            return true;
+        });
     }
 
     private String getMoodEmoji(String mood) {
-        switch (mood) {
+        if (mood == null) return "😐";
+        switch (mood.toLowerCase()) {
             case "happy": return "😊";
             case "sad": return "😢";
             case "excited": return "🤩";
@@ -73,17 +80,15 @@ public class DiaryAdapter extends RecyclerView.Adapter<DiaryAdapter.DiaryViewHol
         }
     }
 
-    static class DiaryViewHolder extends RecyclerView.ViewHolder {
-        CardView cardView;
-        TextView tvTitle, tvContent, tvDate, tvMood;
+    public static class DiaryViewHolder extends RecyclerView.ViewHolder {
+        TextView tvTitle, tvContent, tvDate, tvMoodIcon;
 
         public DiaryViewHolder(@NonNull View itemView) {
             super(itemView);
-            cardView = itemView.findViewById(R.id.card_diary);
             tvTitle = itemView.findViewById(R.id.tv_diary_title);
             tvContent = itemView.findViewById(R.id.tv_diary_content);
             tvDate = itemView.findViewById(R.id.tv_diary_date);
-            tvMood = itemView.findViewById(R.id.tv_diary_mood);
+            tvMoodIcon = itemView.findViewById(R.id.tv_diary_mood);
         }
     }
 }
