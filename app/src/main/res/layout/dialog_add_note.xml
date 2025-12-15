@@ -1,143 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+<!-- res/layout/dialog_add_note.xml -->
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
+    android:background="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp"
+        android:padding="20dp"
         android:background="#FFFFFF">
 
+        <!-- Title -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="New Note"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="#FF69B4"
+            android:gravity="center"
             android:layout_marginBottom="20dp" />
 
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- Title Input -->
+        <EditText
+            android:id="@+id/et_note_title"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:hint="Title"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textSize="14sp"
+            android:textColor="#333333"
+            android:textColorHint="#999999"
+            android:background="@drawable/edit_text_bg"
+            android:inputType="text" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_note_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- Content Input -->
+        <EditText
+            android:id="@+id/et_note_content"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="120dp"
             android:hint="Content"
-            android:layout_marginTop="16dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="12dp"
+            android:textSize="14sp"
+            android:textColor="#333333"
+            android:textColorHint="#999999"
+            android:background="@drawable/edit_text_bg"
+            android:inputType="textMultiLine"
+            android:gravity="top"
+            android:layout_marginTop="12dp" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_note_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:minLines="5"
-                android:gravity="top" />
-        </com.google.android.material.textfield.TextInputLayout>
-
+        <!-- Choose Color Label -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Choose Color"
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:layout_marginTop="20dp"
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="12dp" />
 
+        <!-- Color Picker -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="20dp">
+
+            <View
+                android:id="@+id/color_pink"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/color_circle"
+                android:backgroundTint="#E6A8D7"
+                android:layout_marginEnd="12dp" />
+
+            <View
+                android:id="@+id/color_blue"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/color_circle"
+                android:backgroundTint="#87CEEB"
+                android:layout_marginEnd="12dp" />
+
+            <View
+                android:id="@+id/color_green"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/color_circle"
+                android:backgroundTint="#90EE90"
+                android:layout_marginEnd="12dp" />
+
+            <View
+                android:id="@+id/color_yellow"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/color_circle"
+                android:backgroundTint="#FFE66D"
+                android:layout_marginEnd="12dp" />
+
+            <View
+                android:id="@+id/color_peach"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/color_circle"
+                android:backgroundTint="#FFB6C1" />
+        </LinearLayout>
+
+        <!-- Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center">
 
-            <View
-                android:id="@+id/color_pink"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/color_circle"
-                android:backgroundTint="#FFB6C1"
-                android:layout_margin="8dp" />
-
-            <View
-                android:id="@+id/color_peach"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/color_circle"
-                android:backgroundTint="#FFE4B5"
-                android:layout_margin="8dp" />
-
-            <View
-                android:id="@+id/color_purple"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/color_circle"
-                android:backgroundTint="#E0BBE4"
-                android:layout_margin="8dp" />
-
-            <View
-                android:id="@+id/color_blue"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/color_circle"
-                android:backgroundTint="#B0E0E6"
-                android:layout_margin="8dp" />
-
-            <View
-                android:id="@+id/color_green"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/color_circle"
-                android:backgroundTint="#98D8C8"
-                android:layout_margin="8dp" />
-
-            <View
-                android:id="@+id/color_yellow"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/color_circle"
-                android:backgroundTint="#F0E68C"
-                android:layout_margin="8dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="24dp">
-
             <Button
                 android:id="@+id/btn_cancel_note"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="Cancel"
+                android:text="✕"
+                android:textSize="20sp"
                 android:textColor="#666666"
-                android:backgroundTint="#F0F0F0"
+                android:background="@drawable/button_cancel_bg"
                 android:layout_marginEnd="8dp" />
 
             <Button
                 android:id="@+id/btn_save_note"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="Save"
+                android:text="✓"
+                android:textSize="20sp"
                 android:textColor="#FFFFFF"
-                android:backgroundTint="#FF69B4"
+                android:background="@drawable/button_save_bg"
                 android:layout_marginStart="8dp" />
         </LinearLayout>
 
     </LinearLayout>
-</ScrollView>
+</androidx.cardview.widget.CardView>
