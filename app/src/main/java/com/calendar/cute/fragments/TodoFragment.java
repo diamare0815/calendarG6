@@ -1,25 +1,25 @@
 package com.calendar.cute.fragments;
 
-
 import android.os.Bundle;
-import com.calendar.cute.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.calendar.cute.R;
 import com.calendar.cute.adapters.TodoAdapter;
 import com.calendar.cute.dialogs.AddTodoDialog;
 import com.calendar.cute.dialogs.EditTodoDialog;
 import com.calendar.cute.models.TodoItem;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,12 +29,17 @@ public class TodoFragment extends Fragment {
     private FloatingActionButton fabAddTodo;
     private TodoAdapter todoAdapter;
     private List<TodoItem> todoList;
+
     private ChipGroup chipGroupFilter;
     private TextView tvPendingCount, tvCompletedCount;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState
+    ) {
         View view = inflater.inflate(R.layout.fragment_todo, container, false);
 
         initViews(view);
@@ -53,36 +58,40 @@ public class TodoFragment extends Fragment {
 
         todoList = new ArrayList<>();
 
-        fabAddTodo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAddTodoDialog();
-            }
-        });
+        fabAddTodo.setOnClickListener(v -> showAddTodoDialog());
     }
 
     private void setupRecyclerView() {
-        todoAdapter = new TodoAdapter(todoList, getContext(), new TodoAdapter.OnTodoItemListener() {
-            @Override
-            public void onTodoChecked(TodoItem item, boolean isChecked) {
-                item.setCompleted(isChecked);
-                updateCounts();
-            }
+        todoAdapter = new TodoAdapter(todoList, requireContext(),
+                new TodoAdapter.OnTodoItemListener() {
 
-            @Override
-            public void onTodoDelete(TodoItem item) {
-                todoList.remove(item);
-                todoAdapter.notifyDataSetChanged();
-                updateCounts();
-            }
+                    @Override
+                    public void onTodoChecked(TodoItem item, boolean isChecked) {
+                        item.setCompleted(isChecked);
+                        updateCounts();
+                    }
 
-            @Override
-            public void onTodoEdit(TodoItem item) {
-                showEditTodoDialog(item);
-            }
-        });
+                    @Override
+                    public void onTodoDelete(TodoItem item) {
+                        updateCounts();
+                    }
 
-        recyclerViewTodo.setLayoutManager(new LinearLayoutManager(getContext()));
+                    @Override
+                    public void onTodoEdit(TodoItem item) {
+                        showEditTodoDialog(item);
+                    }
+
+                    @Override
+                    public void onTodoStarToggle(TodoItem item, boolean isImportant) {
+                        // nếu đang filter important thì refresh lại list
+                        int checkedId = chipGroupFilter.getCheckedChipId();
+                        if (checkedId == R.id.chip_important && !isImportant) {
+                            todoAdapter.filter("important");
+                        }
+                    }
+                });
+
+        recyclerViewTodo.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerViewTodo.setAdapter(todoAdapter);
 
         loadSampleTodos();
@@ -90,24 +99,15 @@ public class TodoFragment extends Fragment {
     }
 
     private void setupFilters() {
-        chipGroupFilter.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(ChipGroup group, int checkedId) {
-                filterTodos(checkedId);
+        chipGroupFilter.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.chip_today) {
+                todoAdapter.filter("today");
+            } else if (checkedId == R.id.chip_important) {
+                todoAdapter.filter("important");
+            } else {
+                todoAdapter.filter("all");
             }
         });
-    }
-
-    private void filterTodos(int checkedId) {
-        if (checkedId == R.id.chip_all) {
-            todoAdapter.filter("all");
-        } else if (checkedId == R.id.chip_today) {
-            todoAdapter.filter("today");
-        } else if (checkedId == R.id.chip_week) {
-            todoAdapter.filter("week");
-        } else if (checkedId == R.id.chip_important) {
-            todoAdapter.filter("important");
-        }
     }
 
     private void loadSampleTodos() {
@@ -117,7 +117,7 @@ public class TodoFragment extends Fragment {
         todoList.add(new TodoItem("Read 30 pages", "Personal", true, false, "#B0E0E6"));
         todoList.add(new TodoItem("Morning workout", "Health", true, true, "#98D8C8"));
 
-        todoAdapter.notifyDataSetChanged();
+        todoAdapter.filter("all");
     }
 
     private void updateCounts() {
@@ -137,24 +137,19 @@ public class TodoFragment extends Fragment {
     }
 
     private void showAddTodoDialog() {
-        AddTodoDialog dialog = new AddTodoDialog(getContext(), new AddTodoDialog.OnTodoAddedListener() {
-            @Override
-            public void onTodoAdded(TodoItem item) {
-                todoList.add(0, item);
-                todoAdapter.notifyDataSetChanged();
-                updateCounts();
-            }
+        AddTodoDialog dialog = new AddTodoDialog(requireContext(), item -> {
+            todoList.add(0, item);
+            todoAdapter.filter("all");
+            recyclerViewTodo.scrollToPosition(0);
+            updateCounts();
         });
         dialog.show();
     }
 
     private void showEditTodoDialog(TodoItem item) {
-        EditTodoDialog dialog = new EditTodoDialog(getContext(), item, new EditTodoDialog.OnTodoEditedListener() {
-            @Override
-            public void onTodoEdited(TodoItem editedItem) {
-                todoAdapter.notifyDataSetChanged();
-                updateCounts();
-            }
+        EditTodoDialog dialog = new EditTodoDialog(requireContext(), item, editedItem -> {
+            todoAdapter.filter("all");
+            updateCounts();
         });
         dialog.show();
     }

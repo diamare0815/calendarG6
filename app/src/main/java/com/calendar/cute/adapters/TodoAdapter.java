@@ -9,9 +9,11 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.calendar.cute.R;
 import com.calendar.cute.models.TodoItem;
 
@@ -20,15 +22,16 @@ import java.util.List;
 
 public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder> {
 
-    private List<TodoItem> todoList;
-    private List<TodoItem> todoListFiltered;
-    private Context context;
-    private OnTodoItemListener listener;
+    private final List<TodoItem> todoList;          // list gốc
+    private final List<TodoItem> todoListFiltered;  // list hiển thị
+    private final Context context;
+    private final OnTodoItemListener listener;
 
     public interface OnTodoItemListener {
         void onTodoChecked(TodoItem item, boolean isChecked);
         void onTodoDelete(TodoItem item);
         void onTodoEdit(TodoItem item);
+        void onTodoStarToggle(TodoItem item, boolean isImportant);
     }
 
     public TodoAdapter(List<TodoItem> todoList, Context context, OnTodoItemListener listener) {
@@ -53,48 +56,66 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         holder.tvCategory.setText(item.getCategory());
         holder.checkBox.setChecked(item.isCompleted());
 
-        // Show/hide important icon
-        holder.ivImportant.setVisibility(item.isImportant() ? View.VISIBLE : View.GONE);
+        updateStarIcon(holder.ivImportant, item.isImportant());
 
-        // Strikethrough if completed
+        // strike text nếu completed
         if (item.isCompleted()) {
             holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             holder.tvTitle.setAlpha(0.5f);
+            holder.tvCategory.setAlpha(0.5f);
         } else {
             holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-            holder.tvTitle.setAlpha(1.0f);
+            holder.tvTitle.setAlpha(1f);
+            holder.tvCategory.setAlpha(1f);
         }
 
-        // Set color
+        // màu
         try {
             holder.colorIndicator.setBackgroundColor(Color.parseColor(item.getColor()));
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             holder.colorIndicator.setBackgroundColor(Color.parseColor("#FFB6C1"));
         }
 
-        // Checkbox listener
-        holder.checkBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onTodoChecked(item, holder.checkBox.isChecked());
-                notifyItemChanged(position);
-            }
+        /* ===== CHECKBOX ===== */
+        holder.checkBox.setOnClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) return;
+
+            boolean checked = holder.checkBox.isChecked();
+            item.setCompleted(checked);
+            listener.onTodoChecked(item, checked);
+
+            notifyItemChanged(pos);
         });
 
-        // Delete listener
-        holder.ivDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onTodoDelete(item);
-            }
+        /* ===== DELETE ===== */
+        holder.ivDelete.setOnClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) return;
+
+            removeAt(pos);
+            listener.onTodoDelete(item);
         });
 
-        // Edit listener
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onTodoEdit(item);
-            }
+        /* ===== STAR ===== */
+        holder.ivImportant.setOnClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) return;
+
+            boolean newStatus = !item.isImportant();
+            item.setImportant(newStatus);
+            updateStarIcon(holder.ivImportant, newStatus);
+
+            notifyItemChanged(pos);
+            listener.onTodoStarToggle(item, newStatus);
+        });
+
+        /* ===== EDIT ===== */
+        holder.itemView.setOnClickListener(v -> {
+            int pos = holder.getAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) return;
+
+            listener.onTodoEdit(item);
         });
     }
 
@@ -103,29 +124,55 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         return todoListFiltered.size();
     }
 
-    public void filter(String filterType) {
+    /* ===== XÓA AN TOÀN ===== */
+    private void removeAt(int position) {
+        TodoItem removed = todoListFiltered.get(position);
+
+        todoListFiltered.remove(position);
+        todoList.remove(removed);
+
+        notifyItemRemoved(position);
+    }
+
+    /* ===== FILTER ===== */
+    public void filter(String type) {
         todoListFiltered.clear();
 
-        if (filterType.equals("all")) {
-            todoListFiltered.addAll(todoList);
-        } else if (filterType.equals("today")) {
-            // Filter today's tasks
-            for (TodoItem item : todoList) {
-                if (!item.isCompleted()) {
-                    todoListFiltered.add(item);
+        switch (type) {
+            case "today":
+                for (TodoItem item : todoList) {
+                    if (!item.isCompleted()) {
+                        todoListFiltered.add(item);
+                    }
                 }
-            }
-        } else if (filterType.equals("important")) {
-            for (TodoItem item : todoList) {
-                if (item.isImportant()) {
-                    todoListFiltered.add(item);
+                break;
+
+            case "important":
+                for (TodoItem item : todoList) {
+                    if (item.isImportant()) {
+                        todoListFiltered.add(item);
+                    }
                 }
-            }
-        } else {
-            todoListFiltered.addAll(todoList);
+                break;
+
+            case "all":
+            default:
+                todoListFiltered.addAll(todoList);
+                break;
         }
 
         notifyDataSetChanged();
+    }
+
+    /* ===== STAR ICON ===== */
+    private void updateStarIcon(ImageView iv, boolean important) {
+        if (important) {
+            iv.setImageResource(android.R.drawable.star_big_on);
+            iv.setColorFilter(Color.parseColor("#FFD700"));
+        } else {
+            iv.setImageResource(android.R.drawable.star_big_off);
+            iv.setColorFilter(Color.parseColor("#CCCCCC"));
+        }
     }
 
     static class TodoViewHolder extends RecyclerView.ViewHolder {

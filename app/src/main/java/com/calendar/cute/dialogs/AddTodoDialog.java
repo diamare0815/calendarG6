@@ -4,7 +4,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -12,7 +14,6 @@ import android.widget.Spinner;
 import android.widget.ArrayAdapter;
 import androidx.annotation.NonNull;
 import com.calendar.cute.R;
-
 import com.calendar.cute.models.TodoItem;
 
 public class AddTodoDialog extends Dialog {
@@ -40,6 +41,20 @@ public class AddTodoDialog extends Dialog {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_add_todo);
+
+        // Fix kích thước dialog
+        Window window = getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams params = window.getAttributes();
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(params);
+
+            window.setLayout(
+                    (int)(getContext().getResources().getDisplayMetrics().widthPixels * 0.98),
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
 
         initViews();
         setupListeners();
